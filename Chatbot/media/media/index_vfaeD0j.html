@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <script>
+      tailwind.config = {
+        content: ["./*.html"],
+        theme: {
+          fontFamily: {},
+          extend: {
+            backgroundImage: {},
+            colors: {
+              Default: "#525252",
+            },
+          },
+        },
+        plugins: [],
+      };
+    </script>
+<style>
+.imageUploadInput {
+  display: none;
+}
+</style>
+  </head>
+  <body class="bg-gray-50">
+    <section>
+      <div class="w-full m-auto h-screen">
+        <div class="flex flex-row">
+          <!-- left section -->
+          <div
+            class="w-3/12 h-screen flex flex-col justify-center items-center bg-white"
+          >
+            <div class="flex flex-col p-3">
+             
+              <label for="imageUpload" class="uploadBox">
+
+                <p id="uploadMsg" class="text-center mb-5">Please select a file</p>
+                <button
+                onclick="trigger()"
+                type="button"
+                class="flex w-80 justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-600 hover:bg-blue-400 focus:outline-none"
+              > File Upload
+             </button>
+                <input id="imageUpload" class="imageUploadInput" type="file" name="image" accept="image/*">
+              <!-- <input type="file" name="" id="upload_file" class="bg-blue-400" /> -->
+            </div>
+            <div id="file_list">File List:</div>
+          </div>
+          <!-- left section closed -->
+          <!-- right section -->
+          <div class="relative w-9/12 h-screen bg-gray-100">
+            <div
+              class="flex-1 sm:px-6 py-2 justify-between flex flex-col h-screen"
+            >
+              <!-- chat head -->
+              <div
+                class="flex sm:items-center justify-between py-3 border-b-2 border-gray-200"
+              >
+                <div class="relative flex items-center space-x-4">
+                  <div class="relative">
+                    <span class="absolute text-green-500 right-0 bottom-0">
+                      <svg width="20" height="20">
+                        <circle
+                          cx="8"
+                          cy="8"
+                          r="8"
+                          fill="currentColor"
+                        ></circle>
+                      </svg>
+                    </span>
+                    <img
+                      src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
+                      alt=""
+                      class="w-10 sm:w-16 h-10 sm:h-16 rounded-full"
+                    />
+                  </div>
+                  <div class="flex flex-col leading-tight">
+                    <div class="text-2xl mt-1 flex items-center">
+                      <span class="text-gray-700 mr-3">Tiwari</span>
+                    </div>
+                    <span class="text-lg text-gray-600">AI Developer</span>
+                  </div>
+                </div>
+                <!-- <div class="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center rounded-lg border h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      class="h-6 w-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                      ></path>
+                    </svg>
+                  </button>
+                </div> -->
+              </div>
+              <!-- chat head closed -->
+
+              <!-- chat body message -->
+              <div
+                id="messages"
+                class="flex flex-col min-h-min space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-1 scrolling-touch"
+              >
+                <div class="chat-message">
+                  <div class="flex items-end">
+                    <div
+                      class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 items-start"
+                    >
+                      <div>
+                        <span
+                          class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600"
+                          >Are you complete chat bot UI design?</span
+                        >
+                      </div>
+                    </div>
+                    <img
+                      src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
+                      alt="My profile"
+                      class="w-10 h-10 rounded-full order-1"
+                    />
+                  </div>
+                </div>
+                <div class="chat-message">
+                  <div class="flex items-end justify-end">
+                    <div
+                      class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-1 items-end"
+                    >
+                      <div>
+                        <span
+                          class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white"
+                          >Now working on Chat UI page.</span
+                        >
+                      </div>
+                    </div>
+                    <img
+                      src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
+                      alt="My profile"
+                      class="w-10 h-10 rounded-full order-2"
+                    />
+                  </div>
+                </div>
+              </div>
+              <!-- chat body message closed -->
+
+              <!-- chat body message bottom -->
+              <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
+                <div class="relative flex">
+                  <input
+                    id="input_data"
+                    onkeypress=""
+                    type="text"
+                    placeholder="Write your message!"
+                    class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-2 bg-gray-200 rounded-md py-3"
+                  />
+                  <div
+                    class="absolute right-0 items-center inset-y-0 hidden sm:flex"
+                  >
+                    <button
+                      onclick="newChat()"
+                      id="input_submit"
+                      type="button"
+                      class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-600 hover:bg-blue-400 focus:outline-none"
+                    >
+                      <span class="font-bold">Send</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        class="h-6 w-6 ml-2 transform rotate-90"
+                      >
+                        <path
+                          d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
+                        ></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <!-- chat body message bottom closed -->
+            </div>
+          </div>
+          <!-- right section closed -->
+        </div>
+      </div>
+    </section>
+  </body>
+  <style>
+    .scrollbar-w-2::-webkit-scrollbar {
+      width: 0.25rem;
+      height: 0.25rem;
+    }
+
+    .scrollbar-track-blue-lighter::-webkit-scrollbar-track {
+      --bg-opacity: 1;
+      background-color: #f7fafc;
+      background-color: rgba(247, 250, 252, var(--bg-opacity));
+    }
+
+    .scrollbar-thumb-blue::-webkit-scrollbar-thumb {
+      --bg-opacity: 1;
+      background-color: #edf2f7;
+      background-color: rgba(237, 242, 247, var(--bg-opacity));
+    }
+
+    .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+      border-radius: 0.25rem;
+    }
+  </style>
+
+  <script>
+    //   auto scroll function
+    const el = document.getElementById("messages");
+    el.scrollTop = el.scrollHeight;
+
+    // input inner enter click function
+    let input_data = document.getElementById("input_data");
+    input_data.addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("input_submit").click();
+      }
+    });
+
+    function newChat() {
+      let input_data = document.getElementById("input_data");
+      console.log(input_data.value);
+      var template = `
+        <div class="chat-message">
+          <div class="flex items-end justify-end">
+            <div
+              class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-1 items-end"
+            >
+              <div>
+                <span
+                  class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white"
+                  >${input_data.value}</span
+                >
+              </div>
+            </div>
+            <img
+              src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
+              alt="My profile"
+              class="w-6 h-6 rounded-full order-2"
+            />
+          </div>
+        </div>`;
+      let messages = document.getElementById("messages");
+      messages.innerHTML += template;
+      const el = document.getElementById("messages");
+      el.scrollTop = el.scrollHeight;
+      input_data.value = "";
+    }
+  </script>
+  <script>
+    let upload_file = document.getElementById("upload_file");
+    let imageUpload = document.getElementById("imageUpload");
+    var newArray = []
+let uploadMsg = document.getElementById("uploadMsg");
+// display file name if file has been selected
+imageUpload.onchange = function() {
+  let input = this.files[0];
+  console.log(input)
+  let text;
+  if (input) {
+    //process input
+    text = imageUpload.value.replace("C: \\fakepath\\", "");
+  } else {
+    text = "Please select a file";
+  }
+  uploadMsg.innerHTML = "upload successfully";
+  uploadMsg.classList.add("text-green-400")
+
+  let file_list = document.getElementById('file_list')
+  file_list.innerHTML += `
+  <div class="w-[95%] relative flex p-2 m-2 bg-gray-100 rounded-md">
+    
+    
+    <div class="flex container w-[100%]">${input.name}</div>
+    <button type="button" class="text-gray-400 bg-gray-300 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="defaultModal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+    <div/>
+  `
+  setTimeout(function(){
+  let uploadMsg = document.getElementById("uploadMsg");
+  uploadMsg.innerHTML = "Please select a file";
+  uploadMsg.classList.remove("text-green-400")
+},2000)
+  // newArray.push(input.name)
+};
+function trigger(){
+  document.getElementById('imageUpload').click()
+}
+setTimeout(function(){
+  let uploadMsg = document.getElementById("uploadMsg");
+  uploadMsg.innerHTML = "Please select a file";
+},2000)
+
+
+  </script>
+</html>
