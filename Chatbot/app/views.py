@@ -12,6 +12,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.llms import HuggingFaceHub
 from django.conf import settings
+from faiss import write_index, read_index
 import os
 
 load_dotenv()
@@ -27,27 +28,28 @@ def get_pdf_text(pdf_docs):
    
 
 def get_text_chunks(text):
-   if text is not None:
-      text_splitter = CharacterTextSplitter(
+   
+   text_splitter = CharacterTextSplitter(
          separator="\n",
          chunk_size=1000,
          chunk_overlap=200,
          length_function=len
          )
-      chunks = text_splitter.split_text(text)
-      return chunks
-   else:
-     return None 
+   chunks = text_splitter.split_text(text)
+   return chunks
+    
 
 
 def get_vectorstore(text_chunks):
-    if text_chunks is not None:
-      embeddings = OpenAIEmbeddings()
-      #embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
-      vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
-      return vectorstore
-    else:
-      return None
+    
+   print("vectorstore")
+   embeddings = OpenAIEmbeddings()
+   #embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
+   vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
+   print("vectorstore DOne")
+   print(vectorstore)
+   return vectorstore
+    
 
 def get_conversation_chain(vectorstore):
 
@@ -67,13 +69,7 @@ def get_conversation_chain(vectorstore):
       return None
 
 
-def call_function(request):
-   if request.session.get('file_name'):
-      raw_text = get_pdf_text(request.session.get('file_name'))
-      text_chunks = get_text_chunks(raw_text)
-      vectorstore = get_vectorstore(text_chunks)
-      conversation = get_conversation_chain(vectorstore)
-      return conversation
+
 
 
 
@@ -88,11 +84,9 @@ def chat(request):
    if request.method == 'POST' :
 
       if request.session.get('file_name'):
-         conversation=call_function(request)
-         raw_text = get_pdf_text(request.session.get('file_name'))
-         # text_chunks = get_text_chunks(raw_text)
-         # vectorstore = get_vectorstore(text_chunks)
-         # conversation = get_conversation_chain(vectorstore)
+         
+         loaded_db=FAISS.load_local("./", OpenAIEmbeddings(), request.session.get('name_model'))
+         conversation = get_conversation_chain(loaded_db)
          response =conversation({'question': str(request.POST.get("user_input"))})
          chat_history=response['chat_history']
          data={}
@@ -115,18 +109,27 @@ def upload_file(request):
 
    if request.method == 'POST' :
         uploaded_file = request.FILES['file']
+        
         try:
          file_uploaded=FileModel.objects.create(doc=uploaded_file)
          file_uploaded.save()
-         file_names=FileModel.objects.all()
-         request.session['file_name']=str(file_names[0].doc)
+         file_names=FileModel.objects.get(pk=file_uploaded.id)
+         name_model=str(file_names.doc).split("/")[1].split(".")[0]
+         
 
-         # text_chunks = get_text_chunks(raw_text)
-         # vectorstore = get_vectorstore(text_chunks)
-         # conversation = get_conversation_chain(vectorstore)
+         
+         request.session['file_name']=str(file_names.doc)
+         request.session['name_model']=name_model
+         
+         raw_text = get_pdf_text(request.session.get('file_name'))
+         text_chunks = get_text_chunks(raw_text)
+         vectorstore = get_vectorstore(text_chunks)
+         vectorstore.save_local("./",name_model)
+         
          
          return JsonResponse({"data": request.session['sname'], "Status":200})
-        except:
+        except Exception as e:
+         print(e)
          return JsonResponse({"data": "File Uploading Fail", "Status":400})
    else:
       return JsonResponse({"data": "Incorrect Fle", "Status":400})
@@ -135,7 +138,13 @@ def delete_session(request):
    if request.method == 'POST' :
          if request.session.get('file_name'):
             FileModel.objects.filter(doc=request.session.get('file_name')).delete()
+            path_cwd=str(os.getcwd())
+            os.remove(path_cwd+"/"+request.session.get('name_model')+".faiss")
+            os.remove(path_cwd+"/"+request.session.get('name_model')+".pkl")
+            print(request.session)
             del request.session['file_name']
+            del request.session['name_model']
+            print(request.session.keys)
             return JsonResponse({ "Status":200})
          else:
             return JsonResponse({ "Status":400})
