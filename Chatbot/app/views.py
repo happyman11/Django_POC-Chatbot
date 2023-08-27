@@ -101,7 +101,7 @@ def chat(request):
             if i % 2 == 0:
                data["User_data"]=message.content
             else:
-               data["Chatbot_data"]=message.content
+               data["chatbot_data"]=message.content
          
          
          return JsonResponse(data)

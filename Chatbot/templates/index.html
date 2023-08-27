@@ -6,10 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat application</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" /> -->
 
   <script>
     tailwind.config = {
@@ -204,12 +208,48 @@
     document.getElementById("input_data").disabled=true
     document.getElementById("input_submit").disabled=true
     document.getElementById("input_data").placeholder="Processing......"
-
+    
     const formData = new FormData();
             formData.append('user_input', input_data.value);
             formData.append("csrfmiddlewaretoken", "{{ csrf_token }}")
 
-            
+            const random_uuid = uuidv4();
+        
+     
+        console.log(random_uuid);
+
+        var chatbot_response=` <div class="chat-message" id="${random_uuid}">
+        <div class="flex items-end">
+          <div class="flex flex-col space-y-2 text-s max-w-xs mx-2 order-2 items-start">
+            <div>
+   <span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600 chat_data" >
+
+    <span
+          class="chat_data px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white"
+          >
+          <div class="">
+            <i class="fa-solid fa-circle fa-beat-fade"></i>
+            <i class="fas fa-solid fa-circle fa-beat-fade" style="--fa-animation-duration: 2s;"></i>
+
+            <i class="fas fa-solid fa-circle fa-beat-fade" style="--fa-animation-duration: 0.5s;" ></i>
+            <i class="fas fa-solid fa-circle fa-beat-fade" style="--fa-beat-scale: 2.0;"></i>
+            </div>
+          </span>
+        
+    
+    
+  
+    </span>
+            </div>
+          </div>
+          <img
+            src="https://d2vrvpw63099lz.cloudfront.net/do-i-need-a-chatbot/header-chat-box.png"
+            alt="My profile" class="w-10 h-10 rounded-full order-1" />
+        </div>
+      </div>`
+
+      let messages = document.getElementById("messages");
+      messages.innerHTML += chatbot_response;
             fetch('/chatbot/chat/', {
                 method: 'POST',
                 body: formData
@@ -217,23 +257,30 @@
             .then(response => response.json())
             .then(data => {
                 console.log("data:::",data)
+                let message=data.chatbot_data
+                let uuid = document.getElementById(random_uuid);
+      var text = uuid.querySelector('.chat_data')
 
-                var chatbot_response=` <div class="chat-message">
-                <div class="flex items-end">
-                  <div class="flex flex-col space-y-2 text-s max-w-xs mx-2 order-2 items-start">
-                    <div>
-                      <span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">${data.Chatbot_data
-}</span>
-                    </div>
-                  </div>
-                  <img
-                    src="https://d2vrvpw63099lz.cloudfront.net/do-i-need-a-chatbot/header-chat-box.png"
-                    alt="My profile" class="w-10 h-10 rounded-full order-1" />
-                </div>
-              </div>`
+      // var message = "Hello. I am a console wannabe."
+      text.innerHTML = '<i id="writing">✍</i>';
+      (function typeWriter() {
+        i=0
+        if (i < message.length) {
+          (function type() {
+            if (i < message.length) {
+              text.insertBefore(document.createTextNode(message.charAt(i)), text.lastChild);
+              i++;
+              setTimeout(type, 50);
+            }else{
+              document.getElementById("writing").remove()
+            }
+          }());
+        
+        }
+      }());
 
-              let messages = document.getElementById("messages");
-    messages.innerHTML += chatbot_response;
+                
+              
     document.getElementById("input_data").placeholder="Ask your Querry Here......"
     document.getElementById("input_data").disabled=false
 
@@ -245,6 +292,8 @@
               console.log(input_data)
               
             });
+
+
 
             var template = `
         <div class="chat-message">
@@ -268,7 +317,7 @@
         </div>`;
 
 
-        let messages = document.getElementById("messages");
+        
     messages.innerHTML += template;
     const el = document.getElementById("messages");
     el.scrollTop = el.scrollHeight;
@@ -380,7 +429,14 @@ function remove_file(){
     uploadMsg.innerHTML = "Please select a file";
   }, 2000)
 
-
+  function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    .replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0, 
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
 </script>
 
 </html>
