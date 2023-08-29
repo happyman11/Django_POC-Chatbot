@@ -111,11 +111,11 @@ def upload_file(request):
    if request.method == 'POST' :
         #uploaded_file = request.FILES['file']
 
-        uploaded_files=request.FILES.getlist('file')
+      uploaded_files=request.FILES.getlist('file')
 
        
         
-        try:
+      try:
          name_file=[]
          for uploaded_file in uploaded_files:
             file_uploaded=FileModel.objects.create(doc=uploaded_file)
@@ -134,7 +134,7 @@ def upload_file(request):
          
          
          return JsonResponse({"data": request.session['sname'], "Status":200})
-        except Exception as e:
+      except Exception as e:
          print(e)
          return JsonResponse({"data": "File Uploading Fail", "Status":400})
    else:
