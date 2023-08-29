@@ -56,7 +56,7 @@
                 class="flex w-full justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-600 hover:bg-blue-400 focus:outline-none">
                 File Upload
               </button>
-              <input  id="imageUpload" class="imageUploadInput" type="file">
+              <input  id="imageUpload" class="imageUploadInput" type="file" multiple>
               <!-- <input type="file" name="" id="upload_file" class="bg-blue-400" /> -->
           </div>
           <div class="w-full" id="file_list"></div>
@@ -161,7 +161,7 @@
         <div class="p-2 font-bold card-body text-center">
           Are you want to delete this file?
         </div>
-        <div class="bg-gray-100 p-2 border border-t-2 card-footer flex justify-end gap-5">
+        <div class="bg-gray-50  p-2 border border-t-2 card-footer flex justify-end gap-5">
         
           <button id="close-popup" class=" w-32 text-gray-600 border border-gray-600 p-2 hover:text-white  hover:bg-gray-600 rounded-md" onclick="document.getElementById('warning-popup').style.display='none'">No</button>
           <button id="delete-file" class=" w-32 bg-blue-600 text-white p-2 hover:bg-blue-700 rounded-md" onclick="remove_file()">
@@ -340,12 +340,33 @@
     
     let input = this.files[0];
     const fileInput = document.getElementById('imageUpload');
-        const file = fileInput.files[0];
+        const files = fileInput.files;
+       
+        console.log(files)
+       
         
-        if (file) {
+        if (files) {
             const formData = new FormData();
-            formData.append('file', file);
+            // formData.append('file', Object.values(files));
             formData.append("csrfmiddlewaretoken", "{{ csrf_token }}")
+            var list_of_file_tag = ''
+            for (let i=0; i< files.length; i++) {
+              formData.append('file', files[i]);
+              list_of_file_tag+=`<div class="w-full flex break-all">${ files[i].name}</div>`   
+            }
+            file_list.innerHTML +=`
+                <div class="w-[95%] relative flex p-2 m-2 bg-gray-100 rounded-md">
+                 
+                  <div class="mt-5">${list_of_file_tag}</div>
+                  <button type="button" id="file_close_btn" class="absolute top-3 right-3 text-gray-400 bg-gray-300 hover:bg-gray-200 hover:text-gray-900 rounded-full text-sm w-5 h-5 ml-auto inline-flex justify-center items-center border border-gray-300 hover:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="defaultModal">
+                      <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                      </svg>
+                      <span class="sr-only">Close modal</span>
+                  </button>
+                  <div/>
+                `;
+            console.log("data:::",formData)
 
             
             fetch('/chatbot/upload/', {
@@ -371,20 +392,8 @@
    
     
 
-    let file_list = document.getElementById('file_list')
-    file_list.innerHTML += `
-  <div class="w-[95%] relative flex p-2 m-2 bg-gray-100 rounded-md">
-    
-    
-    <div class="w-[78%] flex break-all">${input.name}</div>
-    <button type="button" id="file_close_btn" class="text-gray-400 bg-gray-300 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="defaultModal">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                    </svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-    <div/>
-  `
+    // let file_list = document.getElementById('file_list')
+
   document.getElementById("file_close_btn").addEventListener("click",function(){
     document.getElementById("warning-popup").style.display= "flex"
   })

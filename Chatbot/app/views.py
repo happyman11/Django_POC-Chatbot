@@ -19,11 +19,12 @@ load_dotenv()
 
 
 def get_pdf_text(pdf_docs):
-   path=os.path.join(settings.MEDIA_ROOT,pdf_docs)
    text = ""
-   pdf_reader = PdfReader(path)
-   for page in pdf_reader.pages:
-      text += page.extract_text()
+   for name in pdf_docs:
+      path=os.path.join(settings.MEDIA_ROOT,name)
+      pdf_reader = PdfReader(path)
+      for page in pdf_reader.pages:
+         text += page.extract_text()
    return text
    
 
@@ -108,23 +109,28 @@ def chat(request):
 def upload_file(request):
 
    if request.method == 'POST' :
-        uploaded_file = request.FILES['file']
+        #uploaded_file = request.FILES['file']
+
+        uploaded_files=request.FILES.getlist('file')
+
+       
         
         try:
-         file_uploaded=FileModel.objects.create(doc=uploaded_file)
-         file_uploaded.save()
-         file_names=FileModel.objects.get(pk=file_uploaded.id)
-         name_model=str(file_names.doc).split("/")[1].split(".")[0]
+         name_file=[]
+         for uploaded_file in uploaded_files:
+            file_uploaded=FileModel.objects.create(doc=uploaded_file)
+            file_uploaded.save()
+            file_names=FileModel.objects.get(pk=file_uploaded.id)
+            name_file.append(str(file_names.doc))
+         request.session['file_name']=name_file
+         print(request.session.get('file_name'))
          
-
-         
-         request.session['file_name']=str(file_names.doc)
-         request.session['name_model']=name_model
+         request.session['name_model']=str(request.session.get('file_name')[0]).split(".")[0].split("/")[1]
          
          raw_text = get_pdf_text(request.session.get('file_name'))
          text_chunks = get_text_chunks(raw_text)
          vectorstore = get_vectorstore(text_chunks)
-         vectorstore.save_local("./",name_model)
+         vectorstore.save_local("./",request.session.get('name_model'))
          
          
          return JsonResponse({"data": request.session['sname'], "Status":200})
@@ -137,10 +143,22 @@ def upload_file(request):
 def delete_session(request):
    if request.method == 'POST' :
          if request.session.get('file_name'):
-            FileModel.objects.filter(doc=request.session.get('file_name')).delete()
+
+
+            for uploaded_file in request.session.get('file_name'):
+               FileModel.objects.filter(doc=uploaded_file).delete()
+
             path_cwd=str(os.getcwd())
-            os.remove(path_cwd+"/"+request.session.get('name_model')+".faiss")
-            os.remove(path_cwd+"/"+request.session.get('name_model')+".pkl")
+            if os.path.exists(path_cwd+"/"+request.session.get('name_model')+".faiss"):
+                os.remove(path_cwd+"/"+request.session.get('name_model')+".faiss")
+            
+
+            if os.path.exists(path_cwd+"/"+request.session.get('name_model')+".pkl"):
+               os.remove(path_cwd+"/"+request.session.get('name_model')+".pkl")
+
+
+            
+            
             print(request.session)
             del request.session['file_name']
             del request.session['name_model']
