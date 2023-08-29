@@ -108,9 +108,9 @@ def chat(request):
 def upload_file(request):
 
    if request.method == 'POST' :
-        uploaded_file = request.FILES['file']
-        
-        try:
+      print( request.FILES)
+      uploaded_file = request.FILES['file']
+      try:
          file_uploaded=FileModel.objects.create(doc=uploaded_file)
          file_uploaded.save()
          file_names=FileModel.objects.get(pk=file_uploaded.id)
@@ -128,7 +128,7 @@ def upload_file(request):
          
          
          return JsonResponse({"data": request.session['sname'], "Status":200})
-        except Exception as e:
+      except Exception as e:
          print(e)
          return JsonResponse({"data": "File Uploading Fail", "Status":400})
    else:
